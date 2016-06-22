@@ -1,0 +1,697 @@
+//Mohammad Malik
+
+package com.mycompany.a1;
+
+import java.util.Random;
+
+public abstract class Animals extends GameObject implements IMoveable {
+	private int speed;
+	private int direction;
+	private int size;
+	private Random rand = new Random();
+	
+	public Animals(int speed, int catLocation, int sizeMin, int sizeMax, int xMin, int xMax, int yMin, int yMax, int color) {
+		super (xMin, xMax, yMin, yMax, color, sizeMin, sizeMax);
+		this.speed = speed;
+		this.direction = rand.nextInt(catLocation);
+		this.size = sizeMin + rand.nextInt(sizeMax - sizeMin);	
+	}
+	
+	public Animals(int speed, int catLocation, int color, int x, int y, int sizeMin, int sizeMax) {
+		super (color, sizeMin, sizeMax, x, y);
+		this.speed = speed;
+		this.direction = rand.nextInt(catLocation);
+	}
+
+	
+	public void move() {
+		this.setLocationX((float) (getLocationX() + (Math.cos(Math.toRadians(90 - getDirection())) * getSpeed())));
+	    this.setLocationY((float) (getLocationY() + (Math.sin(Math.toRadians(90 - getDirection())) * getSpeed())));
+	    int x = rand.nextInt(2);
+	    
+	    if (x == 0) {
+	    	this.setDirection(this.getDirection() - rand.nextInt(5) - 1);
+	    } else {
+	    	this.setDirection(this.getDirection() + rand.nextInt(5) + 1);
+	    }
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+	
+	public void setSpeed(int newSpeed) {
+		this.speed = newSpeed;
+	}
+	
+	public int getDirection() {
+		return direction;
+	}
+	
+	public void setDirection(int newDirection) {
+		this.direction = newDirection;
+	}
+	
+	public int getSize() {
+		return size;
+	}
+	
+	public String toString() {
+		String s = super.toString();
+		s += " Speed = " + speed + " Direction = " + direction;
+		return s;
+	}
+	
+	public String getType() {
+		return "Animal";
+		
+	}
+}
+
+package com.mycompany.a1;
+
+import com.codename1.charts.util.ColorUtil;
+
+public class Cat extends Animals {
+	
+	private int color;
+	
+	//Creating a cat at a random position
+	//Speed of cat, Direction in degrees, min size, max size
+	//Min X Location, Max X Location, Min Y Location, Max Y Location
+	//Color
+	public Cat() {
+		super(5, 360, 20, 50, 0, 1000, 0, 600, ColorUtil.rgb(119, 136, 153));
+		color = ColorUtil.rgb(119, 136, 153);
+	}
+	
+	//Creating cat near other cats
+	public Cat(int catX, int catY) {
+		//Speed, direction in degrees, min size, max size
+		//random x location, random y location, color
+		super(5, 360, 20, 50, catX, catY, ColorUtil.rgb(119, 136, 153));
+	}
+	
+	public void move() {
+		super.move();
+	}
+	
+	public int getColor() {
+		return color;
+	}
+	
+	public void setColor() {
+	}
+
+	public String toString() {
+	  return "Cat:" + super.toString();
+  }
+}
+
+package com.mycompany.a1;
+
+public abstract class Catchers extends GameObject implements IGuidable{
+	
+	public Catchers(int locationX, int locationY, int color, int size) {
+		super (locationX, locationY, color, size);
+	}
+	
+	public String getType() {
+		return "Catchers";
+	}
+}
+
+package com.mycompany.a1;
+
+import com.codename1.charts.util.ColorUtil;
+
+public class Dog extends Animals {
+	private int scratch;
+	//private int dog;
+	//private java.util.List<GameObject> objectList;
+	
+	//Speed, direction in degrees, min size, max size, min X location
+	//Max X location, min Y location, max Y location, color
+	public Dog() {
+		super(5, 360, 20, 50, 0, 1000, 0, 600, ColorUtil.rgb(139, 69, 19));
+		scratch = 0;
+	}
+	
+	public void catAttack() {
+		scratch++;
+		setSpeed(getSpeed() - 1);
+		setColor(139, 69, 19);//brown to peru 
+	}
+		
+	public int getScratch() {
+		return scratch;
+	}
+
+	public void setScratch(int x) {
+		this.scratch = x;
+	}
+
+
+	public String toString() {
+		String string = "Dog: " + super.toString();
+		string += " Sctatches " + scratch;
+		return string;
+	}
+	
+	public void move() {
+		super.move();
+	}
+}
+
+package com.mycompany.a1;
+
+import com.codename1.ui.Form;
+import com.codename1.ui.Label;
+import com.codename1.ui.TextField;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
+
+public class Game extends Form {
+	
+	private GameWorld gw;
+	
+	public Game() {
+		gw = new GameWorld();
+		gw.initLayout();
+		play();
+	}
+	
+	private void play() {
+		 Label myLabel = new Label("Enter a Command:");
+		 this.add(myLabel);
+		 final TextField myTextField = new TextField();
+		 this.add(myTextField);
+		 this.show();
+		 
+		 myTextField.addActionListener(new ActionListener(){
+		 
+			 public void actionPerformed(ActionEvent evt) {
+
+				 String sCommand=myTextField.getText().toString();
+				 myTextField.clear();       
+	                    
+				 switch (sCommand.charAt(0)) {
+			 		case 'e':
+			 			gw.expand();
+			 			break;
+			 		case 'c':
+			 			gw.contract();
+			 			break;
+			 		case 's':
+			 			gw.scoop();
+			 			break;
+			 		case 'r':
+			 			gw.moveRight();
+			 			break;
+			 		case 'l':
+			 			gw.moveLeft();
+			 			break;
+			 		case 'u':
+			 			gw.moveUp();
+			 			break;
+			 		case 'd':
+			 			gw.moveDown();
+			 			break;
+			 		case 'o':
+			 			gw.jumpToDog();
+			 			break;
+			 		case 'a':
+			 			gw.jumpToCat();
+			 			break;
+			 		case 'k':
+			 			gw.kitten();
+			 			break;
+			 		case 'f':
+			 			gw.fight();
+			 			break;
+			 		case 't':
+			 			gw.ticked();
+			 			break;
+			 		case 'p':
+			 			gw.points();
+			 			break;
+			 		case 'm':
+			 			gw.map();
+			 			break;
+			 		case 'q':
+			 			System.out.println("Are you sure you want to quit, enter y/n?");
+
+			 			break;
+			 		case 'y':
+			 			System.exit(0);
+			 			break;
+			 		case 'n':
+			 			System.out.println("Continue playing the game...");
+			 			break;
+			 		default:
+			 			System.out.print("Invalid Command, please insert another command!\n");
+		 //add code to handle rest of the commands
+		 } //switch
+		 } //actionPerformed
+		 } //new ActionListener()
+		 ); //addActionListener
+	} //play 
+	
+}
+
+package com.mycompany.a1;
+
+import java.util.Random;
+
+import com.codename1.charts.util.ColorUtil;
+
+
+public abstract class GameObject {
+
+	private float locationX;
+	private float locationY;
+	Random rand = new Random();
+	private int size;
+	private int color;
+		
+	public GameObject(int xMin, int xMax, int yMin, int yMax, int color, int sizeMin, int sizeMax) {
+		locationX = xMin + rand.nextInt(xMax - xMin);
+		locationY = yMin + rand.nextInt(yMax - yMin);
+		this.color = color;
+		this.size = sizeMin + rand.nextInt(sizeMax - sizeMin);
+	}
+		
+	public GameObject(int locationX, int locationY, int color, int size) {
+		this.locationX = locationX;
+		this.locationY = locationY;
+		this.color = color;
+		this.size = size;
+	}
+		
+	public GameObject (int locationX, int locationY, int color, int sizeMin, int sizeMax) {
+		this.locationX = locationX;
+		this.locationY = locationY;
+		this.color = color;
+		this.size = sizeMin + rand.nextInt(sizeMax - sizeMin);
+	}	
+		
+	public int getSize() {
+		return size;
+	}
+		
+	public void setSize(int newSize) {
+		size = newSize;
+	}
+		
+	public String toString() {
+		return "X = " + locationX + " Y = " + locationY + " Color = " + color + " Size = " + size;
+	}
+		
+	public float getLocationX() {
+		return locationX;
+	}
+	
+	public float getLocationY() {
+		return locationY;
+	}
+	
+	public void setLocationX(float newLocationX) {
+		locationX = newLocationX;
+	}
+	
+	public void setLocationY(float newLocationY) {
+		locationY = newLocationY;
+	}
+	
+	public int getColor() {
+		return color;
+	}
+
+	public void setColor(int r, int g, int b) {
+		color = ColorUtil.rgb(r, g, b);
+	}
+	
+	public String getType() {
+		return "GameObject";
+	}
+	
+
+}
+
+package com.mycompany.a1;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+
+public class GameWorld {
+	
+	private java.util.List<GameObject> objectList;
+	private int initCat, initDog;
+	private int popDog, popCat = 0;
+	private Net net;
+	private Dog dog;
+	private Cat cat;
+	private int points;
+	private int width = 1000;
+	private int height = 610;
+	private final int INCREMENT = 25;
+	Random rand = new Random();
+	
+	public GameWorld() {
+		objectList = new ArrayList<GameObject>();
+	}
+	
+	public void initLayout() {
+		initDog = 0;
+		initCat = 0;
+		points = 0;
+		objectList.add(new Net());
+		
+		//The game starts with three dogs or less. 
+		for (int i = 0; i < 3; i++) {
+			objectList.add(new Dog());
+			initDog++;
+		}
+
+		//The game starts with two cats or less.
+		for (int i = 0; i < 2; i++) {
+			objectList.add(new Cat());
+			initCat++;
+		}
+		System.out.println("Ready to play. Insert Commands...");
+	}
+
+	public void expand() {
+		net = (Net) objectList.get(0);
+		if(net.getSize()<= height - INCREMENT) {
+			net.setSize(net.getSize() + INCREMENT);
+			System.out.println("Net expanded " + net.getSize());
+		} else {
+			System.out.println("Size is already at the max size, therefore, net cannot be expanded");
+		}
+	}
+	
+	public void contract() {
+		Net n = (Net) objectList.get(0);
+		if (n.getSize() >= 50 + INCREMENT) {
+			n.setSize(n.getSize()- INCREMENT);
+			System.out.println("Net contracted " + n.getSize());
+		} else {
+			System.out.println("Size is already at the min size, therefore, net cannot be contracted");
+		}
+	}
+
+	public void scoop() {
+		Net n = (Net) objectList.get(0);
+		for (int i = 1 + initDog; i < objectList.size(); i++) {
+			cat = (Cat) objectList.get(i);
+			if ((cat.getLocationX() < (n.getLocationX() + Math.floor(n.getSize()/2)))&&
+					cat.getLocationX() > (n.getLocationX() - Math.ceil(n.getSize()/2))) {
+				if ((cat.getLocationY() < (n.getLocationY()+ Math.floor(n.getSize()/2)))&&
+					(cat.getLocationY() > (n.getLocationY()- Math.ceil(n.getSize()/2)))) {
+					System.out.println("The cat is caught you lost 10 points!");
+					points -= 10;
+					objectList.remove(i);
+					i--;
+					initCat--;
+					popCat++;
+				}
+			}
+		}
+		for (int i = 1; i < initDog + 1; i++) {
+			dog = (Dog) objectList.get(i);
+			if ((dog.getLocationX() < (n.getLocationX() + Math.floor(n.getSize()/2)))&&
+					dog.getLocationX() > (n.getLocationX() - Math.ceil(n.getSize()/2))) {
+				if ((dog.getLocationY() < (n.getLocationY()+ Math.floor(n.getSize()/2)))&&
+					dog.getLocationY() > (n.getLocationY()- Math.ceil(n.getSize()/2))) {
+					int gotPoints = 10 - dog.getScratch();
+					points += gotPoints;
+					System.out.println("The dog is caught you received " + gotPoints + " points!");
+					objectList.remove(i);
+					i--;
+					initDog--;
+					popDog++;
+				}
+			}
+		}	
+	}
+
+	public void moveRight() {
+		net = (Net) objectList.get(0);
+		if (net.getLocationX()!= width) {
+			net.moveRight();
+			System.out.println("Net moved to the right " + net.getLocationX() + ".");
+		} else {
+			System.out.println("Net cannot move right any further.");
+		}
+	}
+
+	public void moveLeft() {
+		net = (Net) objectList.get(0);
+		if (net.getLocationX() != 0) {
+			net.moveLeft();
+			System.out.println("Net moved to the left " + net.getLocationX() + ".");
+		} else {
+			System.out.println("Net cannot move left any further");
+		}
+	}
+
+	public void moveUp() {
+		net = (Net) objectList.get(0);
+		if (net.getLocationY() != height) {
+			net.moveUp();
+			System.out.println("Net moved up " + net.getLocationY() + ".");
+		} else {
+			System.out.println("Net cannot move up any further");
+		}
+	}
+
+	public void moveDown() {
+		net = (Net) objectList.get(0);
+		if (net.getLocationY() != 0) {
+			net.moveDown();
+			System.out.println("Net moved down " + net.getLocationY() + ".");
+		} else {
+			System.out.println("Net cannot move down any further");
+		}
+	}
+
+	public void jumpToDog() {
+		int chooseDog = rand.nextInt(initDog);
+		dog = (Dog) objectList.get(1 + chooseDog);
+		net.jumpToDog(dog);
+		System.out.println("Jumped to a random dog.");
+	}
+
+	public void jumpToCat() {
+		if (initCat == 0) {
+			System.out.println("There are no cats!");
+		} else {
+			int chooseCat = rand.nextInt(initCat);
+			cat = (Cat) objectList.get(1 + initDog + chooseCat);
+			net.jumpToCat(cat);
+			System.out.println("Jumped to a random cat!");
+		}
+		
+	}
+
+	public void kitten() {
+		if (initCat < 2) {
+			System.out.println("There are less than two cats!");
+		} else {
+		int chooseCat = rand.nextInt(initCat) + 1;
+		cat = (Cat) objectList.get(1 + initDog + chooseCat);
+		int newLocationX, newLocationY;
+		do {
+			newLocationX = (rand.nextInt(2) * 2 - 1) * 50 + (int) Math.round(cat.getLocationX());
+			newLocationY = (rand.nextInt(2) * 2 - 1) * 50 + (int) Math.round(cat.getLocationY());
+		} while (newLocationX < 0 && newLocationX > width && newLocationY < 0 && newLocationY > height);
+			objectList.add(new Cat(newLocationX, newLocationY));
+			System.out.println("A kitten has been produced at X = " + cat.getLocationX() + " and Y = " + cat.getLocationY() + " .");
+		}
+	}
+
+	public void fight() {
+		if (initCat == 0) {
+			System.out.println("There are no cat(s) to scratch the dog(s).");	
+		} else {
+		int temp= rand.nextInt(initDog);
+		dog = (Dog) objectList.get(1 + temp);
+		int tempScratches = dog.getScratch();
+		int foundDog = 0;
+		if ((initDog > 0) && (initCat > 0)) {
+			for (int i = 0; i < objectList.size(); i++) {
+				if (objectList.get(i) instanceof Dog) {
+					foundDog++;
+					if (foundDog == temp) {
+						dog = (Dog) objectList.get(i);
+						dog.setColor(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+						if (dog.getScratch() < 5) {
+							dog.setScratch(tempScratches + 1);
+							System.out.println("The dog at X = " + dog.getLocationX() + " Y = " 
+							+ dog.getLocationY() + " has been scratched by a cat.");
+						}
+						if (dog.getSpeed() > 0) {
+							dog.setSpeed(dog.getSpeed()- 1);
+						}
+						if (dog.getScratch() == 5) {
+							dog.setColor(255, 0, 0);
+						}
+					}
+				}
+			}
+		} else {
+			 System.out.println("The dog at X = " + dog.getLocationX() + "Y = " + dog.getLocationY() +
+                     " has too many scratches.");
+		}
+
+	}
+}
+
+	public void ticked() {
+		for (GameObject object : objectList) {
+			if (object instanceof IMoveable) {
+				Animals animal = (Animals) object;
+				animal.move();
+			}
+		}
+		System.out.println("The time has moved forward by one tick!");
+	}
+
+	public void points() {
+		System.out.println("Current score: " + points + ".");
+		System.out.println("Number of Cats: " + initCat);
+		System.out.println("Number of Dogs: " + initDog);
+		System.out.println("Number of Cats Captured: " + popCat);
+		System.out.println("Number of Dogs Captured: " + popDog);
+
+
+		}
+
+	public void map() {
+		for (GameObject object : objectList) {
+			System.out.println(object.toString());
+		}
+	}
+}
+
+	
+package com.mycompany.a1;
+
+public interface IGuidable {
+	 void moveUp();
+	 void moveDown();
+	 void moveRight();
+	 void moveLeft();
+	 void jumpToDog(Dog dog);
+	 void jumpToCat(Cat cat);
+}
+
+package com.mycompany.a1;
+
+public interface IMoveable {
+	void move();
+
+}
+package com.mycompany.a1;
+
+import com.codename1.charts.util.ColorUtil;
+
+public class Net extends Catchers{
+	
+	public Net() {
+		super(500, 300, ColorUtil.rgb(0, 0, 0), 100);
+	}
+
+	public void moveRight() {
+		 if (getLocationX() <= 975) {
+	            setLocationX(getLocationX() + 25);
+	        } else {
+	            setLocationX(1000);
+	        }
+	}
+
+	public void moveLeft() {
+		 if (getLocationX() >= 25) {
+	            setLocationX(getLocationX() - 25);
+	        } else {
+	            setLocationX(0);
+	        }
+		
+	}
+
+	public void moveDown() {
+		 if (getLocationY() >= 25) {
+	            setLocationY(getLocationY() - 25);
+	        } else {
+	            setLocationY(0);
+	        }
+		
+	}
+
+	public void moveUp() {
+		if(getLocationY() <= 575) {
+			setLocationY(getLocationY() + 25);
+		} else {
+			setLocationY(600);
+		}
+	}
+	
+	   public void jumpToCat(Cat cat) {
+	        setLocationX(cat.getLocationX());
+	        setLocationY(cat.getLocationY());
+	    }
+
+	    public void jumpToDog(Dog dog) {
+	        setLocationX(dog.getLocationX());
+	        setLocationY(dog.getLocationY());
+	    }
+
+	    public String toString() {
+	    	return getType() + super.toString();
+	    }
+	    
+	    public String getType(){
+	    	return "Net:";
+	    }
+}
+
+package com.mycompany.a1;
+
+import com.codename1.ui.Display;
+import com.codename1.ui.Form;
+import com.codename1.ui.plaf.UIManager;
+import com.codename1.ui.util.Resources;
+import java.io.IOException;
+
+public class Starter {
+
+    private Form current;
+    
+    public void init(Object context) {
+        try{
+            Resources theme = Resources.openLayered("/theme");
+            UIManager.getInstance().setThemeProps(theme.getTheme(theme.getThemeResourceNames()[0]));
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    
+    public void start() {
+        if(current != null){
+            current.show();
+            return;
+        }
+        new Game();
+    }
+    
+    public void stop() {
+    	current = Display.getInstance().getCurrent();
+    }
+    
+    public void destroy() {
+    	
+    }
+}
+
